@@ -10,11 +10,13 @@ class EventList extends Component
 {
     public $title = '';
     public $code = '';
+    public $isAutoApprove = false;
     public $isCreating = false;
 
     protected $rules = [
         'title' => 'required|min:3',
         'code' => 'nullable|alpha_dash|unique:events,code',
+        'isAutoApprove' => 'boolean',
     ];
 
     public function create()
@@ -26,9 +28,10 @@ class EventList extends Component
             'slug' => Str::slug($this->title) . '-' . Str::random(6),
             'code' => $this->code,
             'start_date' => now(),
+            'is_auto_approve' => $this->isAutoApprove,
         ]);
 
-        $this->reset(['title', 'code', 'isCreating']);
+        $this->reset(['title', 'code', 'isAutoApprove', 'isCreating']);
     }
 
     public function delete($id)

@@ -35,7 +35,7 @@
     </div>
 
     <!-- Questions List -->
-    <div class="space-y-4" wire:poll.5s> <!-- Auto refresh every 5s -->
+    <div class="space-y-4">
         @forelse($questions as $question)
             <div
                 class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 flex gap-4 transition hover:shadow-md {{ $question->is_current ? 'ring-2 ring-blue-400 bg-blue-50' : '' }}">

@@ -3,9 +3,12 @@
 namespace App\Livewire\Public;
 
 use Livewire\Component;
+use Livewire\Attributes\On;
 use App\Models\Event;
 use App\Models\Question;
 use App\Models\Vote;
+use App\Events\QuestionCreated;
+use App\Events\QuestionUpdated;
 use Illuminate\Http\Request;
 
 class EventPage extends Component
@@ -20,16 +23,33 @@ class EventPage extends Component
         $this->userIdentifier = $request->ip(); // Simple ID for voting
     }
 
+    // Listen for APPROVED question updates on public channel
+    #[On('echo:event.{event.id},.QuestionUpdated')]
+    public function refreshQuestions()
+    {
+        // Just refresh the component
+    }
+
     public function ask()
     {
         $this->validate([
             'newQuestion' => 'required|min:3|max:255',
         ]);
 
-        $this->event->questions()->create([
+        $status = $this->event->is_auto_approve ? 'approved' : 'pending';
+
+        $question = $this->event->questions()->create([
             'content' => $this->newQuestion,
-            'status' => 'pending', // Default pending moderation
+            'status' => $status,
         ]);
+
+        // If auto-approved, broadcast as Updated (to public)
+        if ($this->event->is_auto_approve) {
+            QuestionUpdated::dispatch($question);
+        } else {
+            // Dispatch Event for Admin to see
+            QuestionCreated::dispatch($question);
+        }
 
         $this->reset('newQuestion');
         session()->flash('message', 'Question sent! Waiting for approval.');
@@ -42,17 +62,18 @@ class EventPage extends Component
             ->first();
 
         if ($existingVote) {
-            // Remove vote
             $existingVote->delete();
             Question::where('id', $questionId)->decrement('votes_count');
         } else {
-            // Add vote
             Vote::create([
                 'question_id' => $questionId,
                 'user_identifier' => $this->userIdentifier,
             ]);
             Question::where('id', $questionId)->increment('votes_count');
         }
+
+        // Notify everyone about new vote count
+        QuestionUpdated::dispatch(Question::find($questionId));
     }
 
     public function render()
@@ -60,7 +81,7 @@ class EventPage extends Component
         $questions = $this->event->questions()
             ->approved()
             ->where('is_answered', false)
-            ->orderByDesc('is_current') // Current question top
+            ->orderByDesc('is_current')
             ->orderByDesc('votes_count')
             ->orderByDesc('created_at')
             ->get();

@@ -3,8 +3,10 @@
 namespace App\Livewire\Admin;
 
 use Livewire\Component;
+use Livewire\Attributes\On;
 use App\Models\Event;
 use App\Models\Question;
+use App\Events\QuestionUpdated;
 
 class EventDashboard extends Component
 {
@@ -15,33 +17,64 @@ class EventDashboard extends Component
         $this->event = $event;
     }
 
+    #[On('echo-private:event.admin.{event.id},.QuestionCreated')]
+    #[On('echo-private:event.admin.{event.id},.QuestionUpdated')]
+    public function refreshDashboard()
+    {
+        // Refresh component
+    }
+
     public function approve($id)
     {
-        Question::where('id', $id)->update(['status' => 'approved']);
+        $question = Question::find($id);
+        if ($question) {
+            $question->update(['status' => 'approved']);
+            QuestionUpdated::dispatch($question);
+        }
     }
 
     public function reject($id)
     {
-        Question::where('id', $id)->update(['status' => 'hidden']);
+        $question = Question::find($id);
+        if ($question) {
+            $question->update(['status' => 'hidden']);
+            QuestionUpdated::dispatch($question);
+        }
     }
 
     public function highlight($id)
     {
         // Un-highlight previous
         $this->event->questions()->update(['is_current' => false]);
+        // Ideally should broadcast update for the unhighlighted one too, 
+        // strictly speaking, but let's just highlight the new one which triggers refresh.
+        // Actually, if we don't dispatch update for the OLD one, local state might be stale?
+        // No, refreshQuestions() re-fetches all.
 
         // Highlight new
-        Question::where('id', $id)->update(['is_current' => true]);
+        $question = Question::find($id);
+        if ($question) {
+            $question->update(['is_current' => true]);
+            QuestionUpdated::dispatch($question);
+        }
     }
 
     public function unhighlight($id)
     {
-        Question::where('id', $id)->update(['is_current' => false]);
+        $question = Question::find($id);
+        if ($question) {
+            $question->update(['is_current' => false]);
+            QuestionUpdated::dispatch($question);
+        }
     }
 
     public function markAnswered($id)
     {
-        Question::where('id', $id)->update(['is_answered' => true, 'is_current' => false]);
+        $question = Question::find($id);
+        if ($question) {
+            $question->update(['is_answered' => true, 'is_current' => false]);
+            QuestionUpdated::dispatch($question);
+        }
     }
 
     public function render()

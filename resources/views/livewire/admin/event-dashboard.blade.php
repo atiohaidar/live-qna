@@ -28,7 +28,7 @@
                     class="ml-2 bg-gray-200 text-gray-600 px-2 py-0.5 rounded-full text-xs">{{ $pendingQuestions->count() }}</span>
             </h2>
 
-            <div class="space-y-3" wire:poll.3s>
+            <div class="space-y-3">
                 @forelse($pendingQuestions as $question)
                     <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-100 animate-fade-in-up">
                         <p class="text-gray-800 mb-3">{{ $question->content }}</p>
@@ -62,7 +62,7 @@
                     class="ml-2 bg-green-100 text-green-600 px-2 py-0.5 rounded-full text-xs">{{ $liveQuestions->count() }}</span>
             </h2>
 
-            <div class="space-y-3" wire:poll.5s>
+            <div class="space-y-3">
                 @forelse($liveQuestions as $question)
                     <div
                         class="p-4 rounded-lg border transition-all {{ $question->is_current ? 'bg-blue-50 border-blue-400 ring-2 ring-blue-100' : 'bg-white border-gray-100 shadow-sm' }}">

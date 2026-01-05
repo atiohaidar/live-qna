@@ -23,6 +23,16 @@
                         @error('code') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
                     </div>
                 </div>
+                <div class="mb-4">
+                    <label class="flex items-center space-x-2 cursor-pointer">
+                        <input wire:model="isAutoApprove" type="checkbox"
+                            class="w-5 h-5 text-blue-600 rounded border-gray-300 focus:ring-blue-500">
+                        <span class="text-gray-700 font-bold">Auto-Approve Questions</span>
+                    </label>
+                    <p class="text-xs text-gray-500 mt-1 ml-7">If checked, questions will appear publicly immediately
+                        without approval.</p>
+                </div>
+
                 <button type="submit" class="bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700">Create
                     Event</button>
             </form>
@@ -33,7 +43,13 @@
         @foreach($events as $event)
             <div class="bg-white p-6 rounded-lg shadow hover:shadow-md transition flex justify-between items-center">
                 <div>
-                    <h3 class="text-xl font-bold text-gray-800">{{ $event->title }}</h3>
+                    <h3 class="text-xl font-bold text-gray-800 flex items-center gap-2">
+                        {{ $event->title }}
+                        @if($event->is_auto_approve)
+                            <span
+                                class="bg-purple-100 text-purple-600 text-xs px-2 py-0.5 rounded-full border border-purple-200">Auto-Approve</span>
+                        @endif
+                    </h3>
                     <div class="text-sm text-gray-500 mt-1">
                         Code: <span class="font-mono bg-gray-100 px-2 py-0.5 rounded">{{ $event->code ?? 'N/A' }}</span>
                         <span class="mx-2">•</span>

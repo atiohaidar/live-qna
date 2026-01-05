@@ -5,9 +5,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Livewire\TodoList;
 use App\Livewire\Login;
 
-Route::get('/', function () {
-    return redirect('/todo'); // Temporary redirect
-});
+Route::get('/', \App\Livewire\Landing::class);
 
 Route::get('/todo', TodoList::class);
 Route::get('/e/{slug}', \App\Livewire\Public\EventPage::class)->name('event.show');

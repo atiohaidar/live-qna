@@ -25,3 +25,6 @@ Route::middleware('auth')->group(function () {
     Route::get('/admin/events', \App\Livewire\Admin\EventList::class)->name('admin.events');
     Route::get('/admin/events/{event}', \App\Livewire\Admin\EventDashboard::class)->name('admin.dashboard');
 });
+
+Route::get('/python-demo', \App\Livewire\PythonData::class);
+
